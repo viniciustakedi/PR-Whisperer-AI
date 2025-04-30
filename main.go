@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	apiKey := os.Getenv("INPUT_OPENAI_API_KEY")
+	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
 		log.Fatal("Missing OPENAI_API_KEY env.")
 	}

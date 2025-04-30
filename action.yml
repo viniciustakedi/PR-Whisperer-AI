@@ -14,9 +14,11 @@ runs:
 
     - name: Install dependencies
       run: pip install -r ${{ github.action_path }}/requirements.txt
+      shell: bash
 
     - name: Run whisperer script
       run: python ${{ github.action_path }}/main.py
+      shell: bash
       env:
         OPENAI_API_KEY: ${{ inputs.openai_api_key }}
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}

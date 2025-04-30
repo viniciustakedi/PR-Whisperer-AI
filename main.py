@@ -3,7 +3,7 @@ import subprocess
 import openai
 
 # Get the API key
-api_key = os.getenv("INPUT_OPENAI_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise Exception("Missing OpenAI API Key")
 

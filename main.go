@@ -11,15 +11,24 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		log.Fatal("Missing OpenAI API key as argument.")
+	apiKey := os.Getenv("INPUT_OPENAI_API_KEY")
+	if apiKey == "" {
+		log.Fatal("OpenAI API key is empty")
 	}
-	apiKey := os.Args[1]
+
+	runCmd("git", "config", "--global", "--add", "safe.directory", "/github/workspace")
 
 	client := openai.NewClient(apiKey)
 
-	// Get git diff
-	base := runCmd("git", "merge-base", "HEAD", "origin/main")
+	baseRef := os.Getenv("GITHUB_BASE_REF")
+	if baseRef == "" {
+		log.Fatal("GITHUB_BASE_REF is not set")
+	}
+
+	fmt.Println("🔍 Base branch:", baseRef)
+
+	runCmd("git", "fetch", "origin", baseRef)
+	base := runCmd("git", "merge-base", "HEAD", "origin/"+baseRef)
 	diff := runCmd("git", "diff", base, "HEAD")
 	commitMsg := runCmd("git", "log", "-1", "--pretty=%B")
 

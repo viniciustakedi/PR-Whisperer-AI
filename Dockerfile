@@ -1,9 +1,7 @@
 FROM golang:1.24
 
-WORKDIR /app
-
-COPY . .
+WORKDIR /github/workspace
 
 RUN go build -o main
 
-ENTRYPOINT [ "/app/main" ]
+ENTRYPOINT ["/github/workspace/main"]

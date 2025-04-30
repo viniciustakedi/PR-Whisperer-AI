@@ -1,11 +1,23 @@
 name: PR Whisperer AI
-description: Generate PR descriptions using OpenAI and Go in order to save your time.
+description: Generate PR descriptions using Python + OpenAI to save your time!
 inputs:
   openai_api_key:
     required: true
-    description: 'Your OpenAI key to execute and use this action.'
+    description: 'OpenAI API key'
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  args:
-    - ${{ inputs.openai_api_key }}
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: pip install -r ${{ github.action_path }}/requirements.txt
+
+    - name: Run whisperer script
+      run: python ${{ github.action_path }}/main.py
+      env:
+        OPENAI_API_KEY: ${{ inputs.openai_api_key }}
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        GITHUB_BASE_REF: ${{ env.GITHUB_BASE_REF }}

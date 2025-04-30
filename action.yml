@@ -1,0 +1,9 @@
+name: PR Whisperer AI
+description: Generate PR descriptions using OpenAI and Go in order to save your time.
+inputs:
+  openai_api_key:
+    required: true
+    description: 'Your OpenAI key to execute and use this action.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

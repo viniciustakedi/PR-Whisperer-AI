@@ -13,8 +13,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate PR Description
-        uses: viniciustakedi/pr-whisperer-ai@main
+      - name: Run PR Whisperer AI
+        uses: viniciustakedi/PR-Whisperer-AI@main
         with:
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
         env:

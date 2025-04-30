@@ -2,35 +2,41 @@ import os
 import subprocess
 import openai
 
-# Get the API key
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
-    raise Exception("Missing OpenAI API Key")
+    raise Exception("❌ Missing OpenAI API key")
 
-# Get base branch from PR
 base_ref = os.getenv("GITHUB_BASE_REF")
 if not base_ref:
-    raise Exception("GITHUB_BASE_REF not set")
+    raise Exception("❌ GITHUB_BASE_REF is not set")
 
-# Mark Git directory as safe
 subprocess.run(["git", "config", "--global", "--add", "safe.directory", "/github/workspace"], check=True)
+subprocess.run(["git", "fetch", "--all"], check=True)
 
-# Fetch the base branch
-subprocess.run(["git", "fetch", "origin", base_ref], check=True)
+branches = subprocess.check_output(["git", "branch", "-r"]).decode()
+print("Remote branches:\n", branches)
 
-# Get diff and commit message
-base = subprocess.check_output(["git", "merge-base", "HEAD", f"origin/{base_ref}"]).decode().strip()
-diff = subprocess.check_output(["git", "diff", base, "HEAD"]).decode()
-commit_msg = subprocess.check_output(["git", "log", "-1", "--pretty=%B"]).decode()
+try:
+    base = subprocess.check_output(["git", "merge-base", "HEAD", f"origin/{base_ref}"]).decode().strip()
+except subprocess.CalledProcessError:
+    print(f"merge-base failed between HEAD and origin/{base_ref}. Falling back to origin/{base_ref}")
+    base = f"origin/{base_ref}"
 
-# Generate description with OpenAI
+try:
+    diff = subprocess.check_output(["git", "diff", base, "HEAD"]).decode()
+except subprocess.CalledProcessError as e:
+    print(f"Failed to get git diff:\n{e}")
+    exit(1)
+
+if not diff.strip():
+    print("⚠️ No changes found in diff. Exiting.")
+    exit(0)
+
 openai.api_key = api_key
-prompt = f"""Generate a clear and professional PR description.
+prompt = f"""You are an assistant helping write professional pull request descriptions.
 
-Commit message:
-{commit_msg}
+Based on the code diff below, generate a clear, concise, and helpful PR description:
 
-Code diff:
 {diff}
 """
 
@@ -39,9 +45,8 @@ response = openai.ChatCompletion.create(
     messages=[{"role": "user", "content": prompt}]
 )
 
-description = response['choices'][0]['message']['content']
-print("🔍 AI-Generated PR Description:")
-print(description)
+description = response["choices"][0]["message"]["content"]
 
-# Optional: post as comment using GitHub CLI
-subprocess.run(["gh", "pr", "comment", "--body", description], check=True)
+# 📦 Output the result
+print("I-Generated PR Description:\n")
+print(description)

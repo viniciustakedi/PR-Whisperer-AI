@@ -1,18 +1,20 @@
 name: PR Whisperer AI
-description: Generate PR descriptions using Python + OpenAI to save your time!
+description: Generate PR descriptions based on git diff using Python + OpenAI
+
 inputs:
   openai_api_key:
     required: true
-    description: 'OpenAI API key'
+    description: OpenAI API key
+
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: 3.11
 
-    - name: Install dependencies
+    - name: Install Python dependencies
       run: pip install -r ${{ github.action_path }}/requirements.txt
       shell: bash
 

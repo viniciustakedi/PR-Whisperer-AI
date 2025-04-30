@@ -6,47 +6,48 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 
 	openai "github.com/sashabaranov/go-openai"
 )
 
 func main() {
-	apiKey := os.Getenv("OPENAI_API_KEY")
-	if apiKey == "" {
-		log.Fatal("Missing OPENAI_API_KEY env.")
+	if len(os.Args) < 2 {
+		log.Fatal("Missing OpenAI API key as argument.")
 	}
-
-	diff := runCmd("git", "diff", "origin/main...HEAD")
-	commitMsg := runCmd("git", "log", "--pretty=%B")
+	apiKey := os.Args[1]
 
 	client := openai.NewClient(apiKey)
 
-	prompt := fmt.Sprintf(`
-	Generate a PR description.
-	Commit message: %s
-	Diff: %s
-	`, commitMsg, diff)
+	// Get git diff
+	base := runCmd("git", "merge-base", "HEAD", "origin/main")
+	diff := runCmd("git", "diff", base, "HEAD")
+	commitMsg := runCmd("git", "log", "-1", "--pretty=%B")
 
+	// Prompt to send to OpenAI
+	prompt := fmt.Sprintf(`Generate a clear and professional PR description.
+Commit message: %s
+Code diff: %s`, commitMsg, diff)
+
+	// Make the API call
 	resp, err := client.CreateChatCompletion(context.Background(), openai.ChatCompletionRequest{
-		Model: openai.GPT4o,
+		Model: openai.GPT4,
 		Messages: []openai.ChatCompletionMessage{
 			{Role: "user", Content: prompt},
 		},
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("OpenAI API error: %v", err)
 	}
 
-	desc := resp.Choices[0].Message.Content
-	fmt.Println("::set-output name=description::" + strings.ReplaceAll(desc, "\n", "\\n"))
+	result := resp.Choices[0].Message.Content
+	fmt.Println("🔍 AI-Generated PR Description:")
+	fmt.Println(result)
 }
 
 func runCmd(name string, args ...string) string {
 	out, err := exec.Command(name, args...).CombinedOutput()
 	if err != nil {
-		log.Fatalf("Error running %s %v: %v\nOutput:\n%s", name, args, err, string(out))
+		log.Fatalf("Error running %s %v:\n%s", name, args, out)
 	}
-
 	return string(out)
 }

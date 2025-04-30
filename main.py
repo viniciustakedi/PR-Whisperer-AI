@@ -1,6 +1,6 @@
 import os
 import subprocess
-import openai
+from openai import OpenAI
 
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
@@ -32,7 +32,10 @@ if not diff.strip():
     print("⚠️ No changes found in diff. Exiting.")
     exit(0)
 
-openai.api_key = api_key
+client = OpenAI(
+    api_key=api_key,
+)
+
 prompt = f"""You are an assistant helping write professional pull request descriptions.
 
 Based on the code diff below, generate a clear, concise, and helpful PR description:
@@ -40,13 +43,12 @@ Based on the code diff below, generate a clear, concise, and helpful PR descript
 {diff}
 """
 
-response = openai.ChatCompletion.create(
-    model="gpt-4",
+response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
     messages=[{"role": "user", "content": prompt}]
 )
 
 description = response["choices"][0]["message"]["content"]
 
-# 📦 Output the result
 print("I-Generated PR Description:\n")
 print(description)

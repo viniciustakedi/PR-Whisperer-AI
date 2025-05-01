@@ -24,13 +24,16 @@ name: PR Whisperer AI
 
 on:
   pull_request:
-    types: [opened, synchronize, edited]
+    types: [opened, synchronize]
+
+permissions:
+  pull-requests: write
 
 jobs:
   whisper:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0

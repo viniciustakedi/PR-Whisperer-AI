@@ -2,7 +2,10 @@ name: PR Whisperer AI
 
 on:
   pull_request:
-    types: [opened, synchronize, edited]
+    types: [opened, synchronize]
+
+permissions:
+  pull-requests: write
 
 jobs:
   whisper:

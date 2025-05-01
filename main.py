@@ -4,11 +4,11 @@ from openai import OpenAI
 
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
-    raise Exception("❌ Missing OpenAI API key")
+    raise Exception("Missing OpenAI API key")
 
 base_ref = os.getenv("GITHUB_BASE_REF")
 if not base_ref:
-    raise Exception("❌ GITHUB_BASE_REF is not set")
+    raise Exception("GITHUB_BASE_REF is not set")
 
 subprocess.run(["git", "config", "--global", "--add", "safe.directory", "/github/workspace"], check=True)
 subprocess.run(["git", "fetch", "--all"], check=True)
@@ -29,7 +29,7 @@ except subprocess.CalledProcessError as e:
     exit(1)
 
 if not diff.strip():
-    print("⚠️ No changes found in diff. Exiting.")
+    print("No changes found in diff. Exiting.")
     exit(0)
 
 client = OpenAI(
@@ -44,9 +44,11 @@ Based on the code diff below, generate a clear, concise, and helpful PR descript
 """
 
 response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
+    model="gpt-4o",
     messages=[{"role": "user", "content": prompt}]
 )
+
+print(response)
 
 description = response["choices"][0]["message"]["content"]
 

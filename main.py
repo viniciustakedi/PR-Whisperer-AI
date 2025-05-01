@@ -50,7 +50,7 @@ response = client.chat.completions.create(
 
 print(response)
 
-description = response["choices"][0]["message"]["content"]
+description = response.choices[0].message.content
 
 print("I-Generated PR Description:\n")
 print(description)

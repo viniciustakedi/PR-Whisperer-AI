@@ -3,6 +3,7 @@ import subprocess
 from openai import OpenAI
 import json
 import requests
+import tiktoken
 
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
@@ -38,19 +39,91 @@ client = OpenAI(
     api_key=api_key,
 )
 
-prompt = f"""You are an assistant helping write professional pull request descriptions.
+mainDefaultBranches = ["main", "master"]
+description = ""
 
-Based on the code diff below, generate a clear, concise, and helpful PR description:
+if base_ref not in mainDefaultBranches:
+    gpt_model = "gpt-4o"
+    encoding = tiktoken.encoding_for_model(gpt_model)
 
-{diff}
-"""
+    prompt = f"""You are an assistant helping write professional pull request descriptions.
 
-response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": prompt}]
-)
+    Based on the code diff below, generate a clear, concise, and helpful PR description with this template: # 🚀 PR Title
 
-description = response.choices[0].message.content
+**Short description of the change (max 1–2 lines).**
+
+---
+
+## 📖 Description
+
+- **What’s changing?**  
+  A concise overview of the changes you’ve made.
+
+- **Why?**  
+  The motivation behind this PR (bug-fix, feature, refactor, docs, etc.).
+
+---
+
+## 🛠 Implementation Details
+
+- Bullet out the key technical changes:
+  - e.g. “Extracted `FooService` from `BarController` for better separation of concerns”
+  - e.g. “Added validation on incoming payloads to prevent X error”
+  - e.g. “Upgraded dependencies: `libX` v1.2.0 → v1.3.0”
+
+---
+
+## ✅ Checklist
+
+- [ ] My code follows the project’s style guides  
+- [ ] I added/updated tests for new behavior  
+- [ ] All existing tests pass (`npm test` / `go test` / etc.)  
+- [ ] I updated relevant documentation (README, OpenAPI spec, etc.)  
+- [ ] I ran linting and formatting (e.g. `eslint`, `gofmt`, `prettier`)  
+
+---
+
+## 🔗 Related Issues / Tickets
+
+- Closes #123  
+- Fixes JIRA-456  
+
+---
+diff:
+    {diff}
+    """
+
+    try:
+        tokens = encoding.encode(prompt)
+    except Exception as e:
+        print(f"Failed to encode prompt: {e}")
+        exit(1)
+
+    if len(tokens) >= 30000:
+        gpt_model = "gpt-4.1-mini"
+
+    response = client.chat.completions.create(
+        model=gpt_model,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    description = response.choices[0].message.content
+else:
+    print("Generating Release PR summary...")
+    commit_logs = subprocess.check_output(["git", "log", "--pretty=format:%s", f"{base}..HEAD"]).decode().split("\n")
+
+    pr_lines = []
+    for msg in commit_logs:
+        if msg.startswith("Merge pull request #"):
+            parts = msg.split()
+            pr_number = parts[3][1:]
+            title = " ".join(parts[5:])
+            pr_lines.append(f"- [#{pr_number}](https://github.com/{repo}/pull/{pr_number}): {title}")
+
+    if pr_lines:
+        description = "## 🚀 Release PRs:\n\n" + "\n".join(pr_lines)
+    else:
+        description = "No merged PRs found in this release."
 
 event_path = os.getenv("GITHUB_EVENT_PATH")
 with open(event_path, "r") as f:

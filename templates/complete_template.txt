@@ -2,16 +2,12 @@
 
 **Short description of the change (max 1–2 lines).**
 
----
-
 ## 📖 Description
 - **What’s changing?**  
   A concise overview of the changes you’ve made.
 
 - **Why?**  
   The motivation behind this PR (bug-fix, feature, refactor, docs, etc.).
-
----
 
 ## 🛠 Implementation Details
 
@@ -20,15 +16,12 @@
   - e.g. “Added validation on incoming payloads to prevent X error”
   - e.g. “Upgraded dependencies: `libX` v1.2.0 → v1.3.0”
 
----
-    
 ## 📊 Queries changed
 here you can put none or the queries changed and the funcionality
 
----
+## ⚙️ New envs
+here you can put none or the envs added or changed.
 
 ## 🔗 Related Issues / Tickets
 - Closes #123  
 - Fixes JIRA-456  
-
----

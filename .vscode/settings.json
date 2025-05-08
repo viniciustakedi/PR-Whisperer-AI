@@ -1,0 +1,6 @@
+{
+  "python.analysis.extraPaths": [
+    "./utils",
+    "./process_steps"
+  ]
+}

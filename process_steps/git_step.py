@@ -58,7 +58,18 @@ def updatePRDescription(description):
     return
 
 def getCommitLogs():
-    return subprocess.check_output(["git", "log", "--pretty=format:%s", f"{base_ref}..HEAD"]).decode().split("\n")
+    try:
+        base = subprocess.check_output(
+            ["git", "merge-base", "HEAD", f"origin/{base_ref}"]
+        ).decode().strip()
+    except subprocess.CalledProcessError:
+        base = f"origin/{base_ref}"
+
+    lines = subprocess.check_output(
+        ["git", "log", "--pretty=format:%s", f"{base}..HEAD"]
+    ).decode().split("\n")
+
+    return lines
 
 def formatPRUrl(pr_number, title):
     return f"- [#{pr_number}](https://github.com/{repo}/pull/{pr_number}): {title}"

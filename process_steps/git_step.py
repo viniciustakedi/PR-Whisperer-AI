@@ -72,4 +72,4 @@ def getCommitLogs():
     return lines
 
 def formatPRUrl(pr_number, title):
-    return f"- [#{pr_number}](https://github.com/{repo}/pull/{pr_number}): {title}"
+    return f"- [#{pr_number}: {title}](https://github.com/{repo}/pull/{pr_number})"

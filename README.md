@@ -65,18 +65,6 @@ In your repository:
 
 ### 📦 Development
 
-Project structure:
-
-```
-PR-Whisperer-AI/
-├── action.yml           # GitHub Action definition
-├── main.py              # Python script that does the work
-├── requirements.txt     # Dependencies (OpenAI SDK)
-└── .github/
-    └── workflows/
-        └── pr-whisperer.yml (example usage)
-```
-
 Install locally (optional)
 
 ```bash

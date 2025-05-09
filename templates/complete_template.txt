@@ -1,6 +1,6 @@
 # 🚀 PR Title
 
-**Short description of the change (max 1–2 lines).**
+**Short description of the change.**
 
 ## 📖 Description
 - **What’s changing?**  
@@ -23,5 +23,4 @@ here you can put none or the queries changed and the funcionality
 here you can put none or the envs added or changed.
 
 ## 🔗 Related Issues / Tickets
-- Closes #123  
-- Fixes JIRA-456  
+here you can put none or the tickets/issues related.  

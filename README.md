@@ -7,7 +7,7 @@ AI-powered GitHub Action that automatically generates clear, professional Pull R
 ## ✨ Features
 
 - 🔍 Analyzes `git diff` between the PR branch and base
-- 🧠 Summarizes changes using OpenAI GPT-4o
+- 🧠 Summarizes changes using OpenAI GPT-4o for PRs with until 30k Tokens and gpt-4.1-mini for PRs with until 200k tokens
 - 💬 (Optional) Posts generated description as a PR comment
 - 🛠️ Easy to drop into any CI/CD workflow
 
